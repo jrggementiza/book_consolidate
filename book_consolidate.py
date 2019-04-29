@@ -5,92 +5,70 @@ and moves it to the root directory
 sorted via folders named pdf and epub, per file type.
 """
 
-import os
-import shutil
+""" Simple script that undiscriminately moves book files from a target folder to a destination folder """
+import sys
+import os, shutil
+import glob
 
 
-def sort_file_and_move(path_of_files_to_move, destination_folders):
-    """ Accepts a list of file paths to move, and a list of destination folders,
-    sorts file paths and moves said file paths to destination folders that
-    match their file paths """
-
-    for source in path_of_files_to_move:
-        name, ext = os.path.splitext(source)
-        for destination in destination_folders:
-            _, dest_ext = os.path.split(destination)
-            if ext[1:] == dest_ext:
-                try:
-                    shutil.move(source, destination,
-                                copy_function=shutil.copy(source, destination))
-                except Exception as e:
-                    print(e)
+def create_destination_directory(destination_folder, filetype):
+    destination_directory_name = destination_folder + '/' + filetype[1:]
+    try:
+        os.mkdir(destination_directory_name)
+    except Exception as e:
+        print(e)
+        pass
+    return destination_directory_name
 
 
-def generate_destination_folders(filetype_watchlist, path):
-    """ Accepts a list of filetypes to watch,
-    creates a directory per filetype to watch, and
-    returns a list of paths per created directory 
-    """
+def generate_filetype_and_filepaths_payload(target_folder, filetypes_to_consolidate):
+    return [generate_filepaths(filetype, target_folder) for filetype in filetypes_to_consolidate]
 
-    destination_paths = []
-    for directory_name in filetype_watchlist:
-        path_directory_name = path + '/' + directory_name[1:]
-        try:
-            os.mkdir(path_directory_name)
-        except Exception as e:
-            print(e)
-            pass
-        destination_paths.append(path_directory_name)
-    return destination_paths
-
-
-def generate_path_of_files_to_move(filetype_watchlist, path):
+def generate_filepaths(filetype, target_folder):
+    # TODO: update docstring
     """ Accepts list of filetypes to watch and
     returns a list of paths of files to move
     """
 
     path_of_files_to_move = []
-    for dirpath, dirname, filename in os.walk(path):
+    for dirpath, dirname, filename in os.walk(target_folder):
         for file in filename:
             name, ext = os.path.splitext(file)
-            if ext in filetype_watchlist:
+            if ext == filetype:
                 path_of_file = os.path.join(dirpath, file)
                 path_of_files_to_move.append(path_of_file)
-    return path_of_files_to_move
+                # Test # path_of_files_to_move.append(file)
+    payload = [filetype, path_of_files_to_move]
+    return payload
 
 
-def generate_filetype_to_watch():
+# TODO: Actual Implementation (cli version of args passed / gui clicky buttons)
+# TODO: would look like : script.py target_folder destination_folder -delete_soource=True *filetypes_to_consolidate
+def generate_filetypes_to_consolidate():
     """ Asks users to input filetypes to watch
     and returns a list of said filetypes
     """
-
-    # TODO: Actual Implementation (cli version of args passed / gui clicky buttons)
     return ['.pdf', '.epub']
 
 
 def main():
-    # TODO: "path" -> root_folder = os.getcwd()
-    TARGET_FOLDER = '/Users/jrggementiza/Documents/_Sharpening/_Books' #TODO: TARGET_FOLDER in env
-    target_folder = TARGET_FOLDER
+    # TARGET_FOLDER = '/Users/jrggementiza/Documents/_Sharpening/_Books'
+    target_folder = sys.argv[1]
+    try:
+        destination_folder = sys.argv[2]
+    except Exception as e:
+        destination_folder = os.getcwd()
 
-    filetype_watchlist = generate_filetype_to_watch()
+    filetypes_to_consolidate = generate_filetypes_to_consolidate()
 
-    path_of_files_to_move = generate_path_of_files_to_move(
-        filetype_watchlist, target_folder)
-
-    destination_folders = generate_destination_folders(
-        filetype_watchlist, target_folder)
-
-    sort_file_and_move(path_of_files_to_move, destination_folders)
-
-    # TODO: Delete Files / Directories with permissions
-    for file in path_of_files_to_move:
-        try:
-            shutil.rmtree(file)
-        except Exception as e:
-            print(e)
-            pass
-
+    filetype_filepaths_payload = generate_filetype_and_filepaths_payload(target_folder, filetypes_to_consolidate)
+    
+    for filetype, filepaths in filetype_filepaths_payload:
+        destination_directory_name = create_destination_directory(destination_folder, filetype)
+        for filepath in filepaths:
+            shutil.move(filepath, destination_directory_name)
+            print(f'move from {filepath} - to {destination_directory_name}')
+        
 
 if __name__ == '__main__':
     main()
