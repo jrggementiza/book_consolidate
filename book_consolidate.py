@@ -1,10 +1,4 @@
 #!/usr/bin/python3
-""" A simple script that walks a root directories folders, subfolders, and files,
-grabs a copy of files with a .pdf / .epub file extension,
-and moves it to the root directory
-sorted via folders named pdf and epub, per file type.
-"""
-
 """ Simple script that undiscriminately moves book files from a target folder to a destination folder """
 import sys
 import os, shutil
@@ -12,6 +6,8 @@ import glob
 
 
 def create_destination_directory(destination_folder, filetype):
+    """ Accepts a destination_folder and a filetype and
+    creates a directory. Returns the destination_directory_name """
     destination_directory_name = destination_folder + '/' + filetype[1:]
     try:
         os.mkdir(destination_directory_name)
@@ -22,12 +18,15 @@ def create_destination_directory(destination_folder, filetype):
 
 
 def generate_filetype_and_filepaths_payload(target_folder, filetypes_to_consolidate):
+    """ Returns a list of lists for [[filetype1, [filepaths1]], [filetype2, [filepaths2]], etc]
+    based on a list of filetypes on the target folder
+    """
     return [generate_filepaths(filetype, target_folder) for filetype in filetypes_to_consolidate]
 
+
 def generate_filepaths(filetype, target_folder):
-    # TODO: update docstring
-    """ Accepts list of filetypes to watch and
-    returns a list of paths of files to move
+    """ Returns a list of filepaths based on accepted
+    filetype and target_folder
     """
 
     path_of_files_to_move = []
@@ -37,17 +36,16 @@ def generate_filepaths(filetype, target_folder):
             if ext == filetype:
                 path_of_file = os.path.join(dirpath, file)
                 path_of_files_to_move.append(path_of_file)
-                # Test # path_of_files_to_move.append(file)
     payload = [filetype, path_of_files_to_move]
     return payload
 
 
-# TODO: Actual Implementation (cli version of args passed / gui clicky buttons)
-# TODO: would look like : script.py target_folder destination_folder -delete_soource=True *filetypes_to_consolidate
 def generate_filetypes_to_consolidate():
-    """ Asks users to input filetypes to watch
+    """ Deprecated: Asks users to input filetypes to watch
     and returns a list of said filetypes
     """
+    # TODO: Actual Implementation (cli version of args passed / gui clicky buttons)
+    # TODO: would look like : script.py target_folder destination_folder -delete_soource=True *filetypes_to_consolidate
     return ['.pdf', '.epub']
 
 
