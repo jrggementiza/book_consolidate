@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # File Consolidate
 ## Description
 A Simple Script that moves specified files from a target folder and subfolders to a destination folder.
@@ -29,7 +28,3 @@ $ python consolidate.py /path/to/target_folder /path/to/destination_folder filet
 ## Updates
 - Cleaned up code
 - Added a README (yey markdown!)
-=======
-# book_consolidate
-Companion code for a medium post.
->>>>>>> fc0c21ab5ff62010e767b87803ee4e2795fed712
